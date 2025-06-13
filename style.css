@@ -1,0 +1,7 @@
+body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 16px; }
+h1 { text-align: center; }
+.gallery { display: flex; gap: 10px; flex-wrap: wrap; }
+.gallery img { width: 150px; height: auto; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+.gallery img:hover { border-color: #777; }
+.gallery-group { margin-bottom: 40px; }
+#comments { margin-top: 32px; }
