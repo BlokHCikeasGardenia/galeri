@@ -1,7 +1,56 @@
-body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 16px; }
-h1 { text-align: center; }
-.gallery { display: flex; gap: 10px; flex-wrap: wrap; }
-.gallery img { width: 150px; height: auto; border: 2px solid #ddd; border-radius: 4px; cursor: pointer; transition: 0.3s; }
-.gallery img:hover { border-color: #777; }
-.gallery-group { margin-bottom: 40px; }
-#comments { margin-top: 32px; }
+body {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 16px;
+}
+h1 {
+  text-align: center;
+}
+.gallery {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gallery img {
+  width: 150px;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.gallery img:hover {
+  border-color: #777;
+}
+.gallery-group {
+  margin-bottom: 40px;
+}
+#comments {
+  margin-top: 32px;
+}
+
+/* RESPONSIVE: HP/Tablet */
+@media (max-width: 600px) {
+  body {
+    padding: 8px;
+  }
+  .gallery {
+    gap: 6px;
+    justify-content: center;
+  }
+  .gallery img {
+    width: 44vw; /* gambar menyesuaikan lebar layar, 2 gambar per baris */
+    min-width: 100px;
+    max-width: 180px;
+  }
+  h1 {
+    font-size: 1.3em;
+  }
+  .gallery-group h2 {
+    font-size: 1.08em;
+  }
+  .gallery-group p {
+    font-size: 0.9em;
+  }
+}
