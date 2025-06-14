@@ -23,6 +23,7 @@ h1 {
   transition: border-color 0.3s, transform 0.3s;
   background: #fafafa;
   display: block;
+  object-fit: cover;
 }
 .gallery img:hover {
   border-color: #777;
@@ -32,14 +33,14 @@ h1 {
   margin-bottom: 36px;
 }
 
-/* RESPONSIVE: Tablet & HP */
+/* Tablet & HP: Gambar membesar dan grid lebih rapat */
 @media (max-width: 700px) {
   .gallery {
     gap: 8px;
     justify-content: center;
   }
   .gallery img {
-    width: 45vw;   /* Gambar sekitar setengah layar, 2 gambar per baris */
+    width: 45vw;
     min-width: 100px;
     max-width: 49vw;
   }
@@ -54,7 +55,7 @@ h1 {
   }
 }
 
-/* RESPONSIVE: HP kecil atau layar <= 420px */
+/* HP sangat kecil: 1 gambar per baris, gambar penuh */
 @media (max-width: 420px) {
   body {
     padding: 4px;
@@ -63,7 +64,7 @@ h1 {
     gap: 6px;
   }
   .gallery img {
-    width: 98vw;   /* 1 gambar per baris, gambar penuh */
+    width: 98vw;
     min-width: 80px;
     max-width: 99vw;
   }
