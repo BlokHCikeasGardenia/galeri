@@ -22,6 +22,7 @@ h1 {
   cursor: pointer;
   transition: border-color 0.3s, transform 0.3s;
   background: #fafafa;
+  display: block;
 }
 .gallery img:hover {
   border-color: #777;
@@ -41,9 +42,9 @@ h1 {
     justify-content: center;
   }
   .gallery img {
-    width: 48vw;
-    min-width: 110px;
-    max-width: 180px;
+    width: 45vw;   /* Sekitar 2 gambar per baris, bisa diubah misal 48vw */
+    min-width: 100px;
+    max-width: 49vw;
   }
   h1 {
     font-size: 1.2em;
@@ -65,7 +66,7 @@ h1 {
     gap: 6px;
   }
   .gallery img {
-    width: 98vw;
+    width: 98vw;   /* 1 gambar per baris, gambar penuh */
     min-width: 80px;
     max-width: 99vw;
   }
