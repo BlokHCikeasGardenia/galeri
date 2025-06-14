@@ -1,0 +1,74 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 900px;
+  margin: auto;
+  padding: 16px;
+  background: #fff;
+}
+h1 {
+  text-align: center;
+}
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+}
+.gallery img {
+  width: 180px;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.3s, transform 0.3s;
+  background: #fafafa;
+  display: block;
+  object-fit: cover;
+}
+.gallery img:hover {
+  border-color: #777;
+  transform: scale(1.04);
+}
+.gallery-group {
+  margin-bottom: 36px;
+}
+
+/* Tablet & HP: Gambar membesar dan grid lebih rapat */
+@media (max-width: 700px) {
+  .gallery {
+    gap: 8px;
+    justify-content: center;
+  }
+  .gallery img {
+    width: 45vw;
+    min-width: 100px;
+    max-width: 49vw;
+  }
+  h1 {
+    font-size: 1.2em;
+  }
+  .gallery-group h2 {
+    font-size: 1em;
+  }
+  .gallery-group p {
+    font-size: 0.95em;
+  }
+}
+
+/* HP sangat kecil: 1 gambar per baris, gambar penuh */
+@media (max-width: 420px) {
+  body {
+    padding: 4px;
+  }
+  .gallery {
+    gap: 6px;
+  }
+  .gallery img {
+    width: 98vw;
+    min-width: 80px;
+    max-width: 99vw;
+  }
+  h1 {
+    font-size: 1em;
+  }
+}
