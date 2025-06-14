@@ -31,9 +31,6 @@ h1 {
 .gallery-group {
   margin-bottom: 36px;
 }
-#comments {
-  margin-top: 32px;
-}
 
 /* RESPONSIVE: Tablet & HP */
 @media (max-width: 700px) {
@@ -42,7 +39,7 @@ h1 {
     justify-content: center;
   }
   .gallery img {
-    width: 45vw;   /* Sekitar 2 gambar per baris, bisa diubah misal 48vw */
+    width: 45vw;   /* Gambar sekitar setengah layar, 2 gambar per baris */
     min-width: 100px;
     max-width: 49vw;
   }
