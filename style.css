@@ -72,3 +72,14 @@ h1 {
     font-size: 1em;
   }
 }
+
+/* ====== GLightbox Popup: Auto Resize Foto ====== */
+.glightbox-container .gslide-image img {
+  max-width: 96vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: auto;
+  display: block;
+}
