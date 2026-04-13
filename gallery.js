@@ -1,4 +1,32 @@
 const CLOUD_NAME = "dyb6pw3i9";
+function getValidImage(folder, index, exts, onFound) {
+  let i = 0;
+
+  function tryNext() {
+    if (i >= exts.length) {
+      console.warn("Image not found:", folder + "/" + index);
+      return;
+    }
+
+    const ext = exts[i];
+    const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${folder}/${index}.${ext}`;
+
+    const img = new Image();
+
+    img.onload = () => {
+      onFound(url);
+    };
+
+    img.onerror = () => {
+      i++;
+      tryNext();
+    };
+
+    img.src = url;
+  }
+
+  tryNext();
+}
 
 const container = document.getElementById("gallery-container");
 const searchInput = document.getElementById("search");
