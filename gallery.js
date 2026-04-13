@@ -1,4 +1,8 @@
 const CLOUD_NAME = "dyb6pw3i9";
+
+/* =========================
+   AUTO DETECT IMAGE EXT
+========================= */
 function getValidImage(folder, index, exts, onFound) {
   let i = 0;
 
@@ -13,9 +17,7 @@ function getValidImage(folder, index, exts, onFound) {
 
     const img = new Image();
 
-    img.onload = () => {
-      onFound(url);
-    };
+    img.onload = () => onFound(url);
 
     img.onerror = () => {
       i++;
@@ -28,23 +30,45 @@ function getValidImage(folder, index, exts, onFound) {
   tryNext();
 }
 
+/* =========================
+   DOM
+========================= */
 const container = document.getElementById("gallery-container");
 const searchInput = document.getElementById("search");
 const filterDate = document.getElementById("filter-date");
 
 let allData = [];
 
-// 🔄 Load data
+/* =========================
+   LOAD JSON
+========================= */
 fetch("data/gallery.json")
   .then(res => res.json())
   .then(data => {
-    allData = data.slice().reverse(); // terbaru di atas
+    allData = data.slice().reverse();
     render(allData);
   });
 
-// 🎨 Render function
+/* =========================
+   LIGHTBOX SAFE INIT
+========================= */
+let lightbox;
+
+function initLightbox() {
+  if (lightbox) lightbox.destroy();
+
+  lightbox = GLightbox({
+    selector: ".glightbox"
+  });
+}
+
+/* =========================
+   RENDER FUNCTION
+========================= */
 function render(data) {
   container.innerHTML = "";
+
+  const exts = ["jpg", "jpeg", "png"];
 
   data.forEach(event => {
     const group = document.createElement("div");
@@ -60,54 +84,60 @@ function render(data) {
 
     const galleryDiv = group.querySelector(".gallery");
 
-    // ✅ FIX UTAMA: cek apakah ada items atau tidak
+    /* =========================
+       EVENT DENGAN ITEMS
+    ========================= */
     if (Array.isArray(event.items)) {
-      // 🔥 CASE: event group (HUT RI dll)
       event.items.forEach(item => {
+
         for (let i = 1; i <= item.total; i++) {
 
-          const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${item.folder}/${i}.${event.ext}`;
-          const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.folder}/${i}.${event.ext}`;
+          getValidImage(item.folder, i, exts, (url) => {
+            const a = document.createElement("a");
+            a.href = url;
+            a.className = "glightbox";
+            a.setAttribute("data-gallery", event.title);
 
+            a.innerHTML = `<img src="${url}" loading="lazy">`;
+
+            galleryDiv.appendChild(a);
+          });
+
+        }
+
+      });
+
+    }
+
+    /* =========================
+       EVENT NORMAL
+    ========================= */
+    else {
+      for (let i = 1; i <= event.total; i++) {
+
+        getValidImage(event.folder, i, exts, (url) => {
           const a = document.createElement("a");
-          a.href = full;
+          a.href = url;
           a.className = "glightbox";
           a.setAttribute("data-gallery", event.title);
 
-          a.innerHTML = `<img src="${thumb}" loading="lazy">`;
+          a.innerHTML = `<img src="${url}" loading="lazy">`;
 
           galleryDiv.appendChild(a);
-        }
-      });
+        });
 
-    } else {
-      // 🔥 CASE: event normal
-      for (let i = 1; i <= event.total; i++) {
-
-        const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${event.folder}/${i}.${event.ext}`;
-        const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${event.folder}/${i}.${event.ext}`;
-
-        const a = document.createElement("a");
-        a.href = full;
-        a.className = "glightbox";
-        a.setAttribute("data-gallery", event.title);
-
-        a.innerHTML = `<img src="${thumb}" loading="lazy">`;
-
-        galleryDiv.appendChild(a);
       }
     }
 
     container.appendChild(group);
   });
 
-  // 🔄 refresh lightbox
-  GLightbox({
-    selector: ".glightbox"
-  });
+  initLightbox();
 }
 
-// 🔍 SEARCH
+/* =========================
+   SEARCH
+========================= */
 searchInput.addEventListener("input", () => {
   const keyword = searchInput.value.toLowerCase();
 
@@ -118,9 +148,11 @@ searchInput.addEventListener("input", () => {
   render(filtered);
 });
 
-// 📅 FILTER BULAN
+/* =========================
+   FILTER BULAN
+========================= */
 filterDate.addEventListener("change", () => {
-  const val = filterDate.value; // format: YYYY-MM
+  const val = filterDate.value;
 
   if (!val) return render(allData);
 
@@ -128,13 +160,15 @@ filterDate.addEventListener("change", () => {
 
   const filtered = allData.filter(e => {
     return e.date.includes(year) &&
-           e.date.toLowerCase().includes(getMonthName(month));
+      e.date.toLowerCase().includes(getMonthName(month));
   });
 
   render(filtered);
 });
 
-// helper bulan
+/* =========================
+   HELPER BULAN
+========================= */
 function getMonthName(m) {
   const months = [
     "januari","februari","maret","april","mei","juni",
