@@ -44,8 +44,10 @@ let loading = false;
 fetch("data/gallery.json")
   .then(res => res.json())
   .then(data => {
-    allData = data.slice().reverse();
-    loadMore(); // initial load
+    // 🔥 SORT TERBARU (ISO DATE)
+    allData = data.sort((a, b) => b.date.localeCompare(a.date));
+
+    loadMore();
   });
 
 /* =========================
@@ -73,12 +75,10 @@ function loadMore() {
 }
 
 /* =========================
-   RENDER FUNCTION
+   RENDER
 ========================= */
 function render(data) {
   loading = true;
-
-  const exts = ["jpg", "jpeg", "png"];
 
   data.forEach(event => {
     const group = document.createElement("div");
@@ -87,12 +87,14 @@ function render(data) {
     group.innerHTML = `
       <div class="group-header">
         <h2>${event.title}</h2>
-        <span>${event.date}</span>
+        <span>${formatDate(event.date)}</span>
       </div>
       <div class="gallery"></div>
     `;
 
     const galleryDiv = group.querySelector(".gallery");
+
+    const exts = ["jpg", "jpeg", "png"];
 
     // ======================
     // EVENT DENGAN ITEMS
@@ -118,14 +120,13 @@ function render(data) {
   });
 
   initLightbox();
-
   loading = false;
 }
 
 /* =========================
-   CREATE IMAGE CARD
+   CREATE IMAGE
 ========================= */
-function createImage(container, title, folder, index, ext, exts) {
+function createImage(container, title, folder, index, ext) {
 
   const url = getImageUrl(folder, index, ext, true);
   const full = getImageUrl(folder, index, ext, false);
@@ -146,7 +147,7 @@ function createImage(container, title, folder, index, ext, exts) {
 }
 
 /* =========================
-   LIGHTBOX SAFE INIT
+   LIGHTBOX
 ========================= */
 let lightbox;
 
@@ -159,7 +160,7 @@ function initLightbox() {
 }
 
 /* =========================
-   SEARCH
+   SEARCH (FIXED)
 ========================= */
 searchInput.addEventListener("input", () => {
   const keyword = searchInput.value.toLowerCase();
@@ -173,10 +174,10 @@ searchInput.addEventListener("input", () => {
 });
 
 /* =========================
-   FILTER BULAN
+   FILTER BULAN (FIXED ISO)
 ========================= */
 filterDate.addEventListener("change", () => {
-  const val = filterDate.value;
+  const val = filterDate.value; // YYYY-MM
 
   if (!val) {
     resetGallery();
@@ -184,11 +185,8 @@ filterDate.addEventListener("change", () => {
     return;
   }
 
-  const [year, month] = val.split("-");
-
   const filtered = allData.filter(e => {
-    return e.date.includes(year) &&
-      e.date.toLowerCase().includes(getMonthName(month));
+    return e.date.startsWith(val);
   });
 
   resetGallery();
@@ -204,12 +202,15 @@ function resetGallery() {
 }
 
 /* =========================
-   BULAN HELPER
+   FORMAT DATE DISPLAY
 ========================= */
-function getMonthName(m) {
+function formatDate(iso) {
   const months = [
-    "januari","februari","maret","april","mei","juni",
-    "juli","agustus","september","oktober","november","desember"
+    "Januari","Februari","Maret","April","Mei","Juni",
+    "Juli","Agustus","September","Oktober","November","Desember"
   ];
-  return months[parseInt(m) - 1];
+
+  const d = new Date(iso);
+
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
