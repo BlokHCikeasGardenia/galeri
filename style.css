@@ -8,12 +8,15 @@ h1 {
   text-align: center;
 }
 
-/* Controls */
+/* =========================
+   CONTROLS
+========================= */
 .controls {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .controls input {
@@ -22,7 +25,9 @@ h1 {
   border: 1px solid #ccc;
 }
 
-/* Card */
+/* =========================
+   CARD GROUP
+========================= */
 .gallery-group {
   background: white;
   padding: 15px;
@@ -33,6 +38,11 @@ h1 {
 
 .group-header {
   margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .group-header h2 {
@@ -44,47 +54,37 @@ h1 {
   color: gray;
 }
 
-/* Grid */
+/* =========================
+   GRID (DESKTOP DEFAULT)
+========================= */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
 }
 
+/* =========================
+   IMAGE STYLE
+========================= */
 .gallery img {
   width: 100%;
+  height: 140px;
+  object-fit: cover;
   border-radius: 8px;
   display: block;
-  transition: 0.2s;
+  transition: transform 0.2s ease;
+
+  /* ⭐ BONUS PERFORMANCE BOOST */
+  will-change: transform;
 }
 
 .gallery img:hover {
   transform: scale(1.05);
 }
 
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-}
-
-.gallery img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* HEADER */
-.group-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* MOBILE OPTIMIZATION */
+/* =========================
+   TABLET
+========================= */
 @media (max-width: 768px) {
   .gallery {
     grid-template-columns: repeat(3, 1fr);
@@ -104,7 +104,9 @@ h1 {
   }
 }
 
-/* SMALL PHONE */
+/* =========================
+   MOBILE SMALL
+========================= */
 @media (max-width: 480px) {
   .gallery {
     grid-template-columns: repeat(2, 1fr);
