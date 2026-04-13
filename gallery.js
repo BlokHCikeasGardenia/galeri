@@ -1,34 +1,30 @@
 const CLOUD_NAME = "dyb6pw3i9";
 
 /* =========================
-   AUTO DETECT IMAGE EXT
+   CLOUDINARY HELPERS
 ========================= */
-function getValidImage(folder, index, exts, onFound) {
-  let i = 0;
+function getImageUrl(folder, index, ext, isThumb = false) {
+  const base = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
 
-  function tryNext() {
-    if (i >= exts.length) {
-      console.warn("Image not found:", folder + "/" + index);
-      return;
-    }
+  const transform = isThumb
+    ? "f_auto,q_auto,w_400"
+    : "f_auto,q_auto";
 
-    const ext = exts[i];
-    const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${folder}/${index}.${ext}`;
-
-    const img = new Image();
-
-    img.onload = () => onFound(url);
-
-    img.onerror = () => {
-      i++;
-      tryNext();
-    };
-
-    img.src = url;
-  }
-
-  tryNext();
+  return `${base}/${transform}/${folder}/${index}.${ext}`;
 }
+
+/* =========================
+   LAZY LOADING OBSERVER
+========================= */
+const imgObserver = new IntersectionObserver((entries, obs) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      obs.unobserve(img);
+    }
+  });
+});
 
 /* =========================
    DOM
@@ -38,35 +34,49 @@ const searchInput = document.getElementById("search");
 const filterDate = document.getElementById("filter-date");
 
 let allData = [];
+let page = 0;
+const limit = 5;
+let loading = false;
 
 /* =========================
-   LOAD JSON
+   LOAD DATA
 ========================= */
 fetch("data/gallery.json")
   .then(res => res.json())
   .then(data => {
     allData = data.slice().reverse();
-    render(allData);
+    loadMore(); // initial load
   });
 
 /* =========================
-   LIGHTBOX SAFE INIT
+   INFINITE SCROLL
 ========================= */
-let lightbox;
+window.addEventListener("scroll", () => {
+  if (loading) return;
 
-function initLightbox() {
-  if (lightbox) lightbox.destroy();
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 400) {
+    loadMore();
+  }
+});
 
-  lightbox = GLightbox({
-    selector: ".glightbox"
-  });
+/* =========================
+   LOAD MORE
+========================= */
+function loadMore() {
+  const next = allData.slice(page * limit, (page + 1) * limit);
+
+  if (next.length === 0) return;
+
+  render(next);
+
+  page++;
 }
 
 /* =========================
    RENDER FUNCTION
 ========================= */
 function render(data) {
-  container.innerHTML = "";
+  loading = true;
 
   const exts = ["jpg", "jpeg", "png"];
 
@@ -84,48 +94,23 @@ function render(data) {
 
     const galleryDiv = group.querySelector(".gallery");
 
-    /* =========================
-       EVENT DENGAN ITEMS
-    ========================= */
+    // ======================
+    // EVENT DENGAN ITEMS
+    // ======================
     if (Array.isArray(event.items)) {
       event.items.forEach(item => {
-
         for (let i = 1; i <= item.total; i++) {
-
-          getValidImage(item.folder, i, exts, (url) => {
-            const a = document.createElement("a");
-            a.href = url;
-            a.className = "glightbox";
-            a.setAttribute("data-gallery", event.title);
-
-            a.innerHTML = `<img src="${url}" loading="lazy">`;
-
-            galleryDiv.appendChild(a);
-          });
-
+          createImage(galleryDiv, event.title, item.folder, i, event.ext, exts);
         }
-
       });
-
     }
 
-    /* =========================
-       EVENT NORMAL
-    ========================= */
+    // ======================
+    // EVENT NORMAL
+    // ======================
     else {
       for (let i = 1; i <= event.total; i++) {
-
-        getValidImage(event.folder, i, exts, (url) => {
-          const a = document.createElement("a");
-          a.href = url;
-          a.className = "glightbox";
-          a.setAttribute("data-gallery", event.title);
-
-          a.innerHTML = `<img src="${url}" loading="lazy">`;
-
-          galleryDiv.appendChild(a);
-        });
-
+        createImage(galleryDiv, event.title, event.folder, i, event.ext, exts);
       }
     }
 
@@ -133,6 +118,44 @@ function render(data) {
   });
 
   initLightbox();
+
+  loading = false;
+}
+
+/* =========================
+   CREATE IMAGE CARD
+========================= */
+function createImage(container, title, folder, index, ext, exts) {
+
+  const url = getImageUrl(folder, index, ext, true);
+  const full = getImageUrl(folder, index, ext, false);
+
+  const a = document.createElement("a");
+  a.href = full;
+  a.className = "glightbox";
+  a.setAttribute("data-gallery", title);
+
+  const img = document.createElement("img");
+  img.dataset.src = url;
+  img.alt = title;
+
+  a.appendChild(img);
+  container.appendChild(a);
+
+  imgObserver.observe(img);
+}
+
+/* =========================
+   LIGHTBOX SAFE INIT
+========================= */
+let lightbox;
+
+function initLightbox() {
+  if (lightbox) lightbox.destroy();
+
+  lightbox = GLightbox({
+    selector: ".glightbox"
+  });
 }
 
 /* =========================
@@ -145,7 +168,8 @@ searchInput.addEventListener("input", () => {
     e.title.toLowerCase().includes(keyword)
   );
 
-  render(filtered);
+  resetGallery();
+  render(filtered.slice(0, limit));
 });
 
 /* =========================
@@ -154,7 +178,11 @@ searchInput.addEventListener("input", () => {
 filterDate.addEventListener("change", () => {
   const val = filterDate.value;
 
-  if (!val) return render(allData);
+  if (!val) {
+    resetGallery();
+    render(allData.slice(0, limit));
+    return;
+  }
 
   const [year, month] = val.split("-");
 
@@ -163,11 +191,20 @@ filterDate.addEventListener("change", () => {
       e.date.toLowerCase().includes(getMonthName(month));
   });
 
-  render(filtered);
+  resetGallery();
+  render(filtered.slice(0, limit));
 });
 
 /* =========================
-   HELPER BULAN
+   RESET
+========================= */
+function resetGallery() {
+  container.innerHTML = "";
+  page = 0;
+}
+
+/* =========================
+   BULAN HELPER
 ========================= */
 function getMonthName(m) {
   const months = [
