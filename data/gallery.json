@@ -62,34 +62,35 @@
     "total": 10,
     "ext": "jpeg"
   },
-    {
-  "title": "Rangkaian Kegiatan HUT RI ke-80",
-  "date": "09 Juli 2025 s/d Selesai",
-  "items": [
-    { "folder": "250709", "total": 20 },
-    { "folder": "250719", "total": 17 },
-    { "folder": "250720", "total": 13 },
-    { "folder": "250726", "total": 13 },
-    { "folder": "250803", "total": 10 },
-    { "folder": "250816", "total": 11 },
-    { "folder": "250817", "total": 7 },
-    { "folder": "250824", "total": 34 }
-  ],
-  "ext": "jpeg"
+  {
+    "title": "Rangkaian Kegiatan HUT RI ke-80",
+    "date": "09 Juli 2025 s/d Selesai",
+    "items": [
+      { "folder": "250709", "total": 20 },
+      { "folder": "250719", "total": 17 },
+      { "folder": "250720", "total": 13 },
+      { "folder": "250726", "total": 13 },
+      { "folder": "250803", "total": 10 },
+      { "folder": "250816", "total": 11 },
+      { "folder": "250817", "total": 7 },
+      { "folder": "250824", "total": 34 }
+    ],
+    "ext": "jpeg"
+  },
   {
     "title": "Pengecoran dan Pemasangan Bendera",
     "date": "13 Juli 2025",
     "folder": "250713",
     "total": 10,
     "ext": "jpeg"
-  }
+  },
   {
     "title": "Renovasi Pos",
     "date": "29 Juni 2025",
     "folder": "250713",
     "total": 10,
     "ext": "jpeg"
-  }
+  },
   {
     "title": "Kerja Bakti",
     "date": "15 Juni 2025",
