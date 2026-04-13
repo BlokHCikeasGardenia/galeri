@@ -32,19 +32,22 @@ function render(data) {
 
     const galleryDiv = group.querySelector(".gallery");
 
-    for (let i = 1; i <= event.total; i++) {
-      const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${event.folder}/${i}.${event.ext}`;
-      const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${event.folder}/${i}.${event.ext}`;
+event.items.forEach(item => {
+  for (let i = 1; i <= item.total; i++) {
 
-      const a = document.createElement("a");
-      a.href = full;
-      a.className = "glightbox";
-      a.setAttribute("data-gallery", event.folder);
+    const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${item.folder}/${i}.${event.ext}`;
+    const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.folder}/${i}.${event.ext}`;
 
-      a.innerHTML = `<img src="${thumb}" loading="lazy">`;
+    const a = document.createElement("a");
+    a.href = full;
+    a.className = "glightbox";
+    a.setAttribute("data-gallery", event.title);
 
-      galleryDiv.appendChild(a);
-    }
+    a.innerHTML = `<img src="${thumb}" loading="lazy">`;
+
+    galleryDiv.appendChild(a);
+  }
+});
 
     container.appendChild(group);
   });
