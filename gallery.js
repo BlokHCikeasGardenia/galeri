@@ -10,7 +10,7 @@ let allData = [];
 fetch("data/gallery.json")
   .then(res => res.json())
   .then(data => {
-    allData = data.reverse(); // terbaru di atas
+    allData = data.slice().reverse(); // terbaru di atas
     render(allData);
   });
 
@@ -32,26 +32,48 @@ function render(data) {
 
     const galleryDiv = group.querySelector(".gallery");
 
-event.items.forEach(item => {
-  for (let i = 1; i <= item.total; i++) {
+    // ✅ FIX UTAMA: cek apakah ada items atau tidak
+    if (Array.isArray(event.items)) {
+      // 🔥 CASE: event group (HUT RI dll)
+      event.items.forEach(item => {
+        for (let i = 1; i <= item.total; i++) {
 
-    const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${item.folder}/${i}.${event.ext}`;
-    const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.folder}/${i}.${event.ext}`;
+          const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${item.folder}/${i}.${event.ext}`;
+          const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${item.folder}/${i}.${event.ext}`;
 
-    const a = document.createElement("a");
-    a.href = full;
-    a.className = "glightbox";
-    a.setAttribute("data-gallery", event.title);
+          const a = document.createElement("a");
+          a.href = full;
+          a.className = "glightbox";
+          a.setAttribute("data-gallery", event.title);
 
-    a.innerHTML = `<img src="${thumb}" loading="lazy">`;
+          a.innerHTML = `<img src="${thumb}" loading="lazy">`;
 
-    galleryDiv.appendChild(a);
-  }
-});
+          galleryDiv.appendChild(a);
+        }
+      });
+
+    } else {
+      // 🔥 CASE: event normal
+      for (let i = 1; i <= event.total; i++) {
+
+        const thumb = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_400,q_auto/${event.folder}/${i}.${event.ext}`;
+        const full = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${event.folder}/${i}.${event.ext}`;
+
+        const a = document.createElement("a");
+        a.href = full;
+        a.className = "glightbox";
+        a.setAttribute("data-gallery", event.title);
+
+        a.innerHTML = `<img src="${thumb}" loading="lazy">`;
+
+        galleryDiv.appendChild(a);
+      }
+    }
 
     container.appendChild(group);
   });
 
+  // 🔄 refresh lightbox
   GLightbox({
     selector: ".glightbox"
   });
