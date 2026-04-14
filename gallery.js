@@ -1,16 +1,17 @@
 const CLOUD_NAME = "dyb6pw3i9";
 
 /* =========================
-   CLOUDINARY HELPERS
+   CLOUDINARY HELPERS (NO EXT)
 ========================= */
-function getImageUrl(folder, index, ext, isThumb = false) {
+function getImageUrl(folder, index, isThumb = false) {
   const base = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
 
   const transform = isThumb
     ? "f_auto,q_auto,w_400"
     : "f_auto,q_auto";
 
-  return `${base}/${transform}/${folder}/${index}.${ext}`;
+  // ❌ NO EXTENSION (INI YANG BENAR)
+  return `${base}/${transform}/${folder}/${index}`;
 }
 
 /* =========================
@@ -44,9 +45,8 @@ let loading = false;
 fetch("data/gallery.json")
   .then(res => res.json())
   .then(data => {
-    // 🔥 SORT TERBARU (ISO DATE)
+    // SORT TERBARU (ISO DATE)
     allData = data.sort((a, b) => b.date.localeCompare(a.date));
-
     loadMore();
   });
 
@@ -70,7 +70,6 @@ function loadMore() {
   if (next.length === 0) return;
 
   render(next);
-
   page++;
 }
 
@@ -94,25 +93,12 @@ function render(data) {
 
     const galleryDiv = group.querySelector(".gallery");
 
-    const exts = ["jpg", "jpeg", "png"];
-
     // ======================
-    // EVENT DENGAN ITEMS
+    // EVENT NORMAL (NO ITEMS)
     // ======================
-    if (Array.isArray(event.items)) {
-      event.items.forEach(item => {
-        for (let i = 1; i <= item.total; i++) {
-          createImage(galleryDiv, event.title, item.folder, i, event.ext, exts);
-        }
-      });
-    }
-
-    // ======================
-    // EVENT NORMAL
-    // ======================
-    else {
+    if (!Array.isArray(event.items)) {
       for (let i = 1; i <= event.total; i++) {
-        createImage(galleryDiv, event.title, event.folder, i, event.ext, exts);
+        createImage(galleryDiv, event.title, event.folder, i);
       }
     }
 
@@ -126,10 +112,10 @@ function render(data) {
 /* =========================
    CREATE IMAGE
 ========================= */
-function createImage(container, title, folder, index, ext) {
+function createImage(container, title, folder, index) {
 
-  const url = getImageUrl(folder, index, ext, true);
-  const full = getImageUrl(folder, index, ext, false);
+  const thumb = getImageUrl(folder, index, true);
+  const full = getImageUrl(folder, index, false);
 
   const a = document.createElement("a");
   a.href = full;
@@ -137,8 +123,9 @@ function createImage(container, title, folder, index, ext) {
   a.setAttribute("data-gallery", title);
 
   const img = document.createElement("img");
-  img.dataset.src = url;
+  img.dataset.src = thumb;
   img.alt = title;
+  img.loading = "lazy";
 
   a.appendChild(img);
   container.appendChild(a);
@@ -160,7 +147,7 @@ function initLightbox() {
 }
 
 /* =========================
-   SEARCH (FIXED)
+   SEARCH
 ========================= */
 searchInput.addEventListener("input", () => {
   const keyword = searchInput.value.toLowerCase();
@@ -174,10 +161,10 @@ searchInput.addEventListener("input", () => {
 });
 
 /* =========================
-   FILTER BULAN (FIXED ISO)
+   FILTER ISO DATE
 ========================= */
 filterDate.addEventListener("change", () => {
-  const val = filterDate.value; // YYYY-MM
+  const val = filterDate.value;
 
   if (!val) {
     resetGallery();
@@ -185,9 +172,9 @@ filterDate.addEventListener("change", () => {
     return;
   }
 
-  const filtered = allData.filter(e => {
-    return e.date.startsWith(val);
-  });
+  const filtered = allData.filter(e =>
+    e.date.startsWith(val)
+  );
 
   resetGallery();
   render(filtered.slice(0, limit));
@@ -202,7 +189,7 @@ function resetGallery() {
 }
 
 /* =========================
-   FORMAT DATE DISPLAY
+   FORMAT DATE
 ========================= */
 function formatDate(iso) {
   const months = [
