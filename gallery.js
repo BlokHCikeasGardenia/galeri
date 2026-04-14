@@ -29,6 +29,7 @@ let currentImageIndex = 0;
 let touchStartX = 0;
 let touchStartY = 0;
 let currentZoom = 1;
+let lastPinchDistance = 0;
 
 /* =========================
    CLOUDINARY HELPERS
@@ -78,6 +79,10 @@ function updateModalImage(title) {
   const item = currentGalleryImages[currentImageIndex];
   const fullImageUrl = getImageUrl(item.folder, item.index, true);
   
+  // Reset zoom on image change
+  currentZoom = 1;
+  lastPinchDistance = 0;
+  
   // Fade out current image
   modalImage.style.opacity = "0.3";
   modalImage.style.transform = "scale(0.98)";
@@ -95,7 +100,7 @@ function updateModalImage(title) {
       modalImage.style.opacity = "1";
       modalImage.style.transform = "scale(1)";
       modalImage.style.pointerEvents = "auto";
-      currentZoom = 1;
+      modalImage.style.cursor = "zoom-in";
     }, 50);
   };
   img.onerror = () => {
@@ -264,18 +269,58 @@ document.querySelector(".modal-overlay").addEventListener("click", closeModal);
    TOUCH SWIPE & INTERACTIONS
 ========================= */
 
+// Helper function to calculate distance between two touch points
+function getTouchDistance(touch1, touch2) {
+  const dx = touch1.clientX - touch2.clientX;
+  const dy = touch1.clientY - touch2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 // Touch swipe for mobile navigation
 document.addEventListener("touchstart", (e) => {
   if (!document.body.classList.contains("modal-open")) return;
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
+  
+  if (e.touches.length === 1) {
+    // Single touch = swipe
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    lastPinchDistance = 0;
+  } else if (e.touches.length === 2) {
+    // Two fingers = pinch zoom
+    lastPinchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+  }
+}, { passive: true });
+
+// Touch move for pinch zoom
+document.addEventListener("touchmove", (e) => {
+  if (!document.body.classList.contains("modal-open")) return;
+  if (e.touches.length !== 2) return;
+  
+  const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+  
+  if (lastPinchDistance > 0) {
+    const ratio = currentDistance / lastPinchDistance;
+    const zoomStep = (ratio - 1) * 0.5; // Gentle zoom sensitivity
+    const newZoom = currentZoom * (1 + zoomStep);
+    const maxZoom = 3;
+    const minZoom = 1;
+    
+    currentZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
+    modalImage.style.transform = `scale(${currentZoom})`;
+    modalImage.style.cursor = currentZoom > 1 ? "grab" : "zoom-in";
+  }
+  
+  lastPinchDistance = currentDistance;
 }, { passive: true });
 
 document.addEventListener("touchend", (e) => {
   if (!document.body.classList.contains("modal-open")) return;
   
-  const touchEndX = e.changedTouches[0].clientX;
-  const touchEndY = e.changedTouches[0].clientY;
+  // Only handle single touch end (swipe)
+  if (e.touches.length > 0) return;
+  
+  const touchEndX = e.changedTouches[e.changedTouches.length - 1].clientX;
+  const touchEndY = e.changedTouches[e.changedTouches.length - 1].clientY;
   const diffX = touchStartX - touchEndX;
   const diffY = touchStartY - touchEndY;
   
@@ -291,6 +336,10 @@ document.addEventListener("touchend", (e) => {
       prevImage(title);
     }
   }
+  
+  touchStartX = 0;
+  touchStartY = 0;
+  lastPinchDistance = 0;
 }, { passive: true });
 
 // Mouse wheel zoom on desktop
