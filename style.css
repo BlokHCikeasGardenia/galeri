@@ -1,85 +1,85 @@
 body {
   font-family: Arial;
+  margin: 0;
   padding: 20px;
   background: #f5f5f5;
 }
 
-h1 {
-  text-align: center;
-}
-
 /* =========================
-   CONTROLS
-========================= */
-.controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.controls input {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-/* =========================
-   CARD
+   GROUP CARD
 ========================= */
 .gallery-group {
   background: white;
+  margin-bottom: 25px;
+  border-radius: 12px;
   padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .group-header {
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 /* =========================
-   PINTEREST MASONRY
+   MASONRY PINTEREST STYLE
 ========================= */
-.gallery {
+.masonry {
   column-count: 4;
   column-gap: 10px;
 }
 
-.gallery a {
+.masonry a {
   display: inline-block;
   width: 100%;
   margin-bottom: 10px;
   break-inside: avoid;
 }
 
-.gallery img {
+.masonry img {
   width: 100%;
-  border-radius: 8px;
-  display: block;
-  transition: transform 0.2s ease;
-  will-change: transform;
+  border-radius: 10px;
+  transition: 0.25s;
+  will-change: transform, opacity;
+  opacity: 0;
 }
 
-.gallery img:hover {
+.masonry img.loaded {
+  opacity: 1;
+}
+
+.masonry img:hover {
   transform: scale(1.03);
 }
 
-/* TABLET */
-@media (max-width: 768px) {
-  .gallery {
-    column-count: 3;
-  }
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .masonry { column-count: 3; }
 }
 
-/* HP */
-@media (max-width: 480px) {
-  .gallery {
-    column-count: 2;
-  }
+@media (max-width: 600px) {
+  .masonry { column-count: 2; }
+}
+
+/* =========================
+   LIGHTBOX FULLSCREEN FIX
+========================= */
+.glightbox-container {
+  background: rgba(0,0,0,0.97) !important;
+}
+
+.gslide-media {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.gslide-image img {
+  max-width: 95vw !important;
+  max-height: 95vh !important;
+  object-fit: contain !important;
 }
