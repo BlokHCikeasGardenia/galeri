@@ -1,7 +1,7 @@
 const CLOUD_NAME = "dyb6pw3i9";
 
 /* =========================
-   CLOUDINARY (NO EXT)
+   CLOUDINARY HELPERS (NO EXT)
 ========================= */
 function getImageUrl(folder, index, isThumb = false) {
   const base = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
@@ -10,11 +10,12 @@ function getImageUrl(folder, index, isThumb = false) {
     ? "f_auto,q_auto,w_500"
     : "f_auto,q_auto";
 
+  // IMPORTANT: NO EXTENSION
   return `${base}/${transform}/${folder}/${index}`;
 }
 
 /* =========================
-   LAZY LOAD OBSERVER
+   LAZY LOADING
 ========================= */
 const imgObserver = new IntersectionObserver((entries, obs) => {
   entries.forEach(entry => {
@@ -25,8 +26,6 @@ const imgObserver = new IntersectionObserver((entries, obs) => {
       obs.unobserve(img);
     }
   });
-}, {
-  rootMargin: "200px"
 });
 
 /* =========================
@@ -74,7 +73,7 @@ function loadMore() {
 }
 
 /* =========================
-   RENDER (MASONRY STYLE)
+   RENDER
 ========================= */
 function render(data) {
   loading = true;
@@ -88,13 +87,13 @@ function render(data) {
         <h2>${event.title}</h2>
         <span>${formatDate(event.date)}</span>
       </div>
-      <div class="gallery masonry"></div>
+      <div class="masonry"></div>
     `;
 
-    const gallery = group.querySelector(".gallery");
+    const grid = group.querySelector(".masonry");
 
     for (let i = 1; i <= event.total; i++) {
-      createImage(gallery, event.title, event.folder, i);
+      createImage(grid, event.title, event.folder, i);
     }
 
     container.appendChild(group);
@@ -105,7 +104,7 @@ function render(data) {
 }
 
 /* =========================
-   CREATE IMAGE CARD
+   CREATE IMAGE
 ========================= */
 function createImage(container, title, folder, index) {
 
@@ -122,8 +121,6 @@ function createImage(container, title, folder, index) {
   img.alt = title;
   img.loading = "lazy";
 
-  img.style.willChange = "transform, opacity";
-
   a.appendChild(img);
   container.appendChild(a);
 
@@ -131,7 +128,7 @@ function createImage(container, title, folder, index) {
 }
 
 /* =========================
-   LIGHTBOX FULLSCREEN CLEAN
+   LIGHTBOX (FULLSCREEN FIX)
 ========================= */
 let lightbox;
 
@@ -140,7 +137,7 @@ function initLightbox() {
 
   lightbox = GLightbox({
     selector: ".glightbox",
-    touchNavigation: true,
+    touchNavigation: false,
     loop: false,
     zoomable: false,
     draggable: false
@@ -162,7 +159,7 @@ searchInput.addEventListener("input", () => {
 });
 
 /* =========================
-   FILTER ISO DATE
+   FILTER DATE (ISO)
 ========================= */
 filterDate.addEventListener("change", () => {
   const val = filterDate.value;
@@ -190,7 +187,7 @@ function reset() {
 }
 
 /* =========================
-   FORMAT DATE
+   DATE FORMAT
 ========================= */
 function formatDate(iso) {
   const months = [
