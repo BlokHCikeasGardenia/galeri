@@ -78,19 +78,25 @@ function updateModalImage(title) {
   const item = currentGalleryImages[currentImageIndex];
   const fullImageUrl = getImageUrl(item.folder, item.index, true);
   
-  // Show loading state
-  modalImage.style.opacity = "0.5";
-  modalImage.style.pointerEvents = "none";
+  // Fade out current image
+  modalImage.style.opacity = "0.3";
+  modalImage.style.transform = "scale(0.98)";
   
-  // Preload and display image
+  // Preload and display image with smooth transition
   const img = new Image();
   img.onload = () => {
+    // Update content
     modalImage.src = fullImageUrl;
-    modalImage.style.opacity = "1";
-    modalImage.style.pointerEvents = "auto";
-    currentZoom = 1;
-    modalImage.style.transform = "scale(1)";
-    modalImage.style.cursor = "zoom-in";
+    modalTitle.textContent = title;
+    modalCounter.textContent = `${currentImageIndex + 1}/${currentGalleryImages.length}`;
+    
+    // Trigger reflow to apply new src, then animate in
+    setTimeout(() => {
+      modalImage.style.opacity = "1";
+      modalImage.style.transform = "scale(1)";
+      modalImage.style.pointerEvents = "auto";
+      currentZoom = 1;
+    }, 50);
   };
   img.onerror = () => {
     modalImage.style.opacity = "1";
@@ -98,9 +104,6 @@ function updateModalImage(title) {
     console.error("Error loading image:", fullImageUrl);
   };
   img.src = fullImageUrl;
-  
-  modalTitle.textContent = title;
-  modalCounter.textContent = `${currentImageIndex + 1}/${currentGalleryImages.length}`;
 }
 
 function nextImage(title) {
