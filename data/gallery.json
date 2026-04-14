@@ -63,20 +63,61 @@
     "ext": "jpeg"
   },
   {
-    "title": "Rangkaian Kegiatan HUT RI ke-80",
-    "date": "2025-07-09",
-    "items": [
-      { "folder": "250709", "total": 20 },
-      { "folder": "250719", "total": 17 },
-      { "folder": "250720", "total": 13 },
-      { "folder": "250726", "total": 13 },
-      { "folder": "250803", "total": 10 },
-      { "folder": "250816", "total": 11 },
-      { "folder": "250817", "total": 7 },
-      { "folder": "250824", "total": 34 }
-    ],
-    "ext": "jpeg"
-  },
+  "title": "HUT RI - 24 Agustus 2025",
+  "date": "2025-08-24",
+  "folder": "250824",
+  "total": 34,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 17 Agustus 2025",
+  "date": "2025-08-17",
+  "folder": "250817",
+  "total": 7,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 16 Agustus 2025",
+  "date": "2025-08-16",
+  "folder": "250816",
+  "total": 11,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 03 Agustus 2025",
+  "date": "2025-08-03",
+  "folder": "250803",
+  "total": 10,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 26 Juli 2025",
+  "date": "2025-07-26",
+  "folder": "250726",
+  "total": 13,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 20 Juli 2025",
+  "date": "2025-07-20",
+  "folder": "250720",
+  "total": 13,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 19 Juli 2025",
+  "date": "2025-07-19",
+  "folder": "250719",
+  "total": 17,
+  "ext": "jpeg"
+  }
+  {
+  "title": "HUT RI - 09 Juli 2025",
+  "date": "2025-07-09",
+  "folder": "250709",
+  "total": 20,
+  "ext": "jpeg"
+  }
   {
     "title": "Pengecoran dan Pemasangan Bendera",
     "date": "2025-07-13",
