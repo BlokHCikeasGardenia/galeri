@@ -1,16 +1,38 @@
 const CLOUD_NAME = "dyb6pw3i9";
 
 /* =========================
-   CLOUDINARY HELPERS (NO EXT)
+   DOM ELEMENTS
 ========================= */
-function getImageUrl(folder, index, isThumb = false) {
+const container = document.getElementById("gallery-container");
+const searchInput = document.getElementById("search");
+const filterDate = document.getElementById("filter-date");
+const backToTop = document.getElementById("back-to-top");
+
+// Modal Elements
+const modalContainer = document.getElementById("modal-container");
+const modalImage = document.getElementById("modal-image");
+const modalTitle = document.getElementById("modal-title");
+const modalCounter = document.getElementById("modal-counter");
+const modalClose = document.getElementById("modal-close");
+const modalPrev = document.getElementById("modal-prev");
+const modalNext = document.getElementById("modal-next");
+
+let allData = [];
+let currentData = [];
+let page = 0;
+const limit = 3;
+let loading = false;
+
+// Modal State
+let currentGalleryImages = [];
+let currentImageIndex = 0;
+
+/* =========================
+   CLOUDINARY HELPERS
+========================= */
+function getImageUrl(folder, index, isFullSize = false) {
   const base = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
-
-  const transform = isThumb
-    ? "f_auto,q_auto,w_500"
-    : "f_auto,q_auto";
-
-  // IMPORTANT: NO EXTENSION
+  const transform = isFullSize ? "f_auto,q_auto" : "f_auto,q_auto,w_400,h_300,c_fill";
   return `${base}/${transform}/${folder}/${index}`;
 }
 
@@ -22,179 +44,233 @@ const imgObserver = new IntersectionObserver((entries, obs) => {
     if (entry.isIntersecting) {
       const img = entry.target;
       img.src = img.dataset.src;
-      img.classList.add("loaded");
+      img.onload = () => img.classList.add("loaded");
       obs.unobserve(img);
     }
   });
-});
+}, { rootMargin: "200px" });
 
 /* =========================
-   DOM
+   MODAL FUNCTIONS
 ========================= */
-const container = document.getElementById("gallery-container");
-const searchInput = document.getElementById("search");
-const filterDate = document.getElementById("filter-date");
+function openModal(galleryItems, index, title) {
+  currentGalleryImages = galleryItems;
+  currentImageIndex = index;
+  
+  updateModalImage(title);
+  modalContainer.classList.remove("modal-hidden");
+  modalContainer.classList.add("modal-open");
+  document.body.classList.add("modal-open");
+  document.documentElement.style.overflow = "hidden";
+}
 
-let allData = [];
-let page = 0;
-const limit = 4;
-let loading = false;
+function closeModal() {
+  modalContainer.classList.remove("modal-open");
+  modalContainer.classList.add("modal-hidden");
+  document.body.classList.remove("modal-open");
+  document.documentElement.style.overflow = "";
+}
+
+function updateModalImage(title) {
+  const item = currentGalleryImages[currentImageIndex];
+  const fullImageUrl = getImageUrl(item.folder, item.index, true);
+  
+  modalImage.src = fullImageUrl;
+  modalTitle.textContent = title;
+  modalCounter.textContent = `${currentImageIndex + 1}/${currentGalleryImages.length}`;
+}
+
+function nextImage(title) {
+  if (currentImageIndex < currentGalleryImages.length - 1) {
+    currentImageIndex++;
+    updateModalImage(title);
+  }
+}
+
+function prevImage(title) {
+  if (currentImageIndex > 0) {
+    currentImageIndex--;
+    updateModalImage(title);
+  }
+}
 
 /* =========================
-   LOAD DATA
+   LOAD INITIAL DATA
 ========================= */
 fetch("data/gallery.json")
   .then(res => res.json())
   .then(data => {
     allData = data.sort((a, b) => b.date.localeCompare(a.date));
+    currentData = [...allData];
     loadMore();
-  });
+  })
+  .catch(err => console.error("Gagal memuat data gallery:", err));
 
 /* =========================
    INFINITE SCROLL
 ========================= */
 window.addEventListener("scroll", () => {
+  // Don't load more if modal is open
+  if (document.body.classList.contains("modal-open")) return;
   if (loading) return;
-
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 800) {
     loadMore();
+  }
+
+  // Back to Top visibility
+  if (window.scrollY > 800) {
+    backToTop.classList.add("show");
+  } else {
+    backToTop.classList.remove("show");
   }
 });
 
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
 /* =========================
-   LOAD MORE
+   LOAD MORE LOGIC
 ========================= */
 function loadMore() {
-  const next = allData.slice(page * limit, (page + 1) * limit);
-  if (!next.length) return;
-
+  const next = currentData.slice(page * limit, (page + 1) * limit);
+  if (!next.length) {
+    if (page === 0) {
+      document.getElementById("empty-state").classList.remove("hidden");
+    }
+    return;
+  }
   render(next);
   page++;
 }
 
 /* =========================
-   RENDER
+   RENDER FUNCTION
 ========================= */
 function render(data) {
   loading = true;
 
   data.forEach(event => {
-    const group = document.createElement("div");
+    const group = document.createElement("section");
     group.className = "gallery-group";
 
     group.innerHTML = `
       <div class="group-header">
         <h2>${event.title}</h2>
-        <span>${formatDate(event.date)}</span>
+        <span class="date">${formatDate(event.date)}</span>
       </div>
-      <div class="masonry"></div>
+      <div class="gallery"></div>
     `;
 
-    const grid = group.querySelector(".masonry");
+    const grid = group.querySelector(".gallery");
+    const galleryItems = [];
 
     for (let i = 1; i <= event.total; i++) {
-      createImage(grid, event.title, event.folder, i);
+      galleryItems.push({ folder: event.folder, index: i });
+      createImage(grid, event.title, event.folder, i, galleryItems.length - 1, galleryItems, event.title);
     }
 
     container.appendChild(group);
   });
 
-  initLightbox();
   loading = false;
 }
 
 /* =========================
-   CREATE IMAGE
+   CREATE IMAGE ELEMENT
 ========================= */
-function createImage(container, title, folder, index) {
+function createImage(container, title, folder, index, itemIndex, galleryItems , eventTitle) {
+  const thumb = getImageUrl(folder, index, false);
 
-  const thumb = getImageUrl(folder, index, true);
-  const full = getImageUrl(folder, index, false);
-
-  const a = document.createElement("a");
-  a.href = full;
-  a.className = "glightbox";
-  a.setAttribute("data-gallery", title);
+  const item = document.createElement("div");
+  item.className = "gallery-item";
 
   const img = document.createElement("img");
   img.dataset.src = thumb;
-  img.alt = title;
+  img.alt = `${title} - Foto ${index}`;
   img.loading = "lazy";
 
-  a.appendChild(img);
-  container.appendChild(a);
+  item.appendChild(img);
+  
+  item.addEventListener("click", () => {
+    openModal(galleryItems, itemIndex, eventTitle);
+  });
+
+  container.appendChild(item);
 
   imgObserver.observe(img);
 }
 
 /* =========================
-   LIGHTBOX (FULLSCREEN FIX)
+   MODAL EVENT LISTENERS
 ========================= */
-let lightbox;
+modalClose.addEventListener("click", closeModal);
 
-function initLightbox() {
-  if (lightbox) lightbox.destroy();
+modalPrev.addEventListener("click", () => {
+  const title = modalTitle.textContent;
+  prevImage(title);
+});
 
-  lightbox = GLightbox({
-    selector: ".glightbox",
-    touchNavigation: false,
-    loop: false,
-    zoomable: false,
-    draggable: false
-  });
-}
+modalNext.addEventListener("click", () => {
+  const title = modalTitle.textContent;
+  nextImage(title);
+});
+
+// Close on Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeModal();
+  }
+  if (e.key === "ArrowLeft" && document.body.classList.contains("modal-open")) {
+    const title = modalTitle.textContent;
+    prevImage(title);
+  }
+  if (e.key === "ArrowRight" && document.body.classList.contains("modal-open")) {
+    const title = modalTitle.textContent;
+    nextImage(title);
+  }
+});
+
+// Close on overlay click
+document.querySelector(".modal-overlay").addEventListener("click", closeModal);
 
 /* =========================
-   SEARCH
+   SEARCH HANDLER
 ========================= */
 searchInput.addEventListener("input", () => {
   const keyword = searchInput.value.toLowerCase();
-
-  const filtered = allData.filter(e =>
-    e.title.toLowerCase().includes(keyword)
-  );
-
+  currentData = allData.filter(e => e.title.toLowerCase().includes(keyword));
   reset();
-  render(filtered.slice(0, limit));
+  loadMore();
 });
 
 /* =========================
-   FILTER DATE (ISO)
+   DATE FILTER HANDLER
 ========================= */
 filterDate.addEventListener("change", () => {
   const val = filterDate.value;
-
   if (!val) {
-    reset();
-    render(allData.slice(0, limit));
-    return;
+    currentData = [...allData];
+  } else {
+    currentData = allData.filter(e => e.date.startsWith(val));
   }
-
-  const filtered = allData.filter(e =>
-    e.date.startsWith(val)
-  );
-
   reset();
-  render(filtered.slice(0, limit));
+  loadMore();
 });
 
 /* =========================
-   RESET
+   RESET UI
 ========================= */
 function reset() {
   container.innerHTML = "";
+  document.getElementById("empty-state").classList.add("hidden");
   page = 0;
 }
 
 /* =========================
-   DATE FORMAT
+   DATE FORMATTER
 ========================= */
 function formatDate(iso) {
-  const months = [
-    "Januari","Februari","Maret","April","Mei","Juni",
-    "Juli","Agustus","September","Oktober","November","Desember"
-  ];
-
-  const d = new Date(iso);
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  return new Date(iso).toLocaleDateString('id-ID', options);
 }

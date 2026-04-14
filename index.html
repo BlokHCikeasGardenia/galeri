@@ -2,27 +2,80 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Gallery Kegiatan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeri Blok H - Dokumentasi Kegiatan</title>
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="/galeri/favicon.ico">
-
-  <!-- GLightbox -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
 </head>
 <body>
 
-  <h1>Dokumentasi Kegiatan</h1>
+  <!-- MODAL FULLSCREEN (Custom) -->
+  <div id="modal-container" class="modal-hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close" title="Tutup (ESC)">✕</button>
+      
+      <div class="modal-nav">
+        <button id="modal-prev" class="modal-nav-btn modal-nav-prev" title="Sebelumnya">❮</button>
+        <span id="modal-counter" class="modal-counter">1/1</span>
+        <button id="modal-next" class="modal-nav-btn modal-nav-next" title="Berikutnya">❯</button>
+      </div>
 
-  <!-- 🔍 SEARCH + FILTER -->
-  <div class="controls">
-    <input type="text" id="search" placeholder="Cari kegiatan...">
-    <input type="month" id="filter-date">
+      <div class="modal-image-wrapper">
+        <img id="modal-image" src="" alt="Galeri Full Size" class="modal-image">
+      </div>
+
+      <div class="modal-info">
+        <h3 id="modal-title">Galeri</h3>
+      </div>
+    </div>
   </div>
 
-  <div id="gallery-container"></div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>📸 Galeri Blok H</h1>
+        <p class="header-subtitle">Dokumentasi & Arsip Kegiatan Lingkungan</p>
+      </div>
+    </div>
+  </header>
 
-  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+  <!-- MAIN CONTENT -->
+  <main class="main-container">
+    <!-- SEARCH & FILTER -->
+    <div class="search-filter">
+      <div class="search-box">
+        <input type="text" id="search" placeholder="🔍 Cari kegiatan..." class="search-input">
+      </div>
+      <div class="filter-box">
+        <input type="month" id="filter-date" class="filter-input">
+      </div>
+    </div>
+
+    <!-- GALLERY CONTAINER -->
+    <div id="gallery-container" class="gallery-container"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="empty-state" class="empty-state hidden">
+      <p>📭 Tidak ada kegiatan yang ditemukan</p>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>&copy; 2026 Galeri Blok H • Dokumentasi Kegiatan</p>
+  </footer>
+
+  <!-- BACK TO TOP -->
+  <button id="back-to-top" class="back-to-top" title="Kembali ke atas">↑</button>
+
   <script src="gallery.js"></script>
 
 </body>
