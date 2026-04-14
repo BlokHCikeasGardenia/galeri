@@ -26,6 +26,9 @@ let loading = false;
 // Modal State
 let currentGalleryImages = [];
 let currentImageIndex = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+let currentZoom = 1;
 
 /* =========================
    CLOUDINARY HELPERS
@@ -75,7 +78,27 @@ function updateModalImage(title) {
   const item = currentGalleryImages[currentImageIndex];
   const fullImageUrl = getImageUrl(item.folder, item.index, true);
   
-  modalImage.src = fullImageUrl;
+  // Show loading state
+  modalImage.style.opacity = "0.5";
+  modalImage.style.pointerEvents = "none";
+  
+  // Preload and display image
+  const img = new Image();
+  img.onload = () => {
+    modalImage.src = fullImageUrl;
+    modalImage.style.opacity = "1";
+    modalImage.style.pointerEvents = "auto";
+    currentZoom = 1;
+    modalImage.style.transform = "scale(1)";
+    modalImage.style.cursor = "zoom-in";
+  };
+  img.onerror = () => {
+    modalImage.style.opacity = "1";
+    modalImage.style.pointerEvents = "auto";
+    console.error("Error loading image:", fullImageUrl);
+  };
+  img.src = fullImageUrl;
+  
   modalTitle.textContent = title;
   modalCounter.textContent = `${currentImageIndex + 1}/${currentGalleryImages.length}`;
 }
@@ -233,6 +256,72 @@ document.addEventListener("keydown", (e) => {
 
 // Close on overlay click
 document.querySelector(".modal-overlay").addEventListener("click", closeModal);
+
+/* =========================
+   TOUCH SWIPE & INTERACTIONS
+========================= */
+
+// Touch swipe for mobile navigation
+document.addEventListener("touchstart", (e) => {
+  if (!document.body.classList.contains("modal-open")) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener("touchend", (e) => {
+  if (!document.body.classList.contains("modal-open")) return;
+  
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const diffX = touchStartX - touchEndX;
+  const diffY = touchStartY - touchEndY;
+  
+  // Only register horizontal swipes (ignore vertical scrolls)
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+    if (diffX > 0) {
+      // Swipe left = next image
+      const title = modalTitle.textContent;
+      nextImage(title);
+    } else {
+      // Swipe right = prev image
+      const title = modalTitle.textContent;
+      prevImage(title);
+    }
+  }
+}, { passive: true });
+
+// Mouse wheel zoom on desktop
+modalImage.addEventListener("wheel", (e) => {
+  if (!document.body.classList.contains("modal-open")) return;
+  e.preventDefault();
+  
+  const zoomStep = 0.2;
+  const maxZoom = 3;
+  const minZoom = 1;
+  
+  if (e.deltaY < 0) {
+    currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+  } else {
+    currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+  }
+  
+  modalImage.style.transform = `scale(${currentZoom})`;
+  modalImage.style.cursor = currentZoom > 1 ? "grab" : "zoom-in";
+}, { passive: false });
+
+// Double-click to toggle zoom
+modalImage.addEventListener("dblclick", () => {
+  if (!document.body.classList.contains("modal-open")) return;
+  
+  if (currentZoom > 1) {
+    currentZoom = 1;
+    modalImage.style.cursor = "zoom-in";
+  } else {
+    currentZoom = 1.5;
+    modalImage.style.cursor = "zoom-out";
+  }
+  modalImage.style.transform = `scale(${currentZoom})`;
+});
 
 /* =========================
    SEARCH HANDLER
